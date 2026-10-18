@@ -3,6 +3,8 @@
 import HomeScreen from "@/components/HomeScreen";
 import LockScreen from "@/components/LockScreen";
 import Quicksettings from "@/components/Quicksettings";
+import Bios from "@/components/Bios";
+import PermissionPrompt from "@/components/PermissionPrompt";
 import usePhoneStore from "@/store/usePhone";
 import { AnimatePresence, motion } from "motion/react";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -18,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
-  const { locked, toggleLock, qs } = usePhoneStore();
+  const { locked, toggleLock, qs, bios, permRequest } = usePhoneStore();
 
   return (
     <div className={`${geistSans.className} ${geistMono.className} font-sans w-full flex items-center justify-center min-h-screen overflow-hidden`} style={{ userSelect: "none" }}>
@@ -47,12 +49,22 @@ export default function Home() {
               {qs &&
                 <Quicksettings />
               }
+
+              {bios &&
+                <div className="h-full w-full absolute z-30">
+                  <Bios />
+                </div>
+              }
             </div>
           </div>
         </div>
       </div>
+
+      {/* Security layer renders OUTSIDE the phone frame so prompts
+          (including PowerMenu-triggered ones) are always visible */}
+      {permRequest &&
+        <PermissionPrompt />
+      }
     </div>
   );
 }
-
-

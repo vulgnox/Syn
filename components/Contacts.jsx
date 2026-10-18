@@ -1,19 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { BiChevronRight, BiPlus } from 'react-icons/bi';
-// import { AnimatePresence, motion } from 'motion/react';
+import { BiChevronRight } from 'react-icons/bi';
 import { FaPlus } from 'react-icons/fa6';
+import { useSandbox } from '@/lib/sandbox/AppSandbox';
 
 const Contacts = ({ openNewTab }) => {
     const [contacts, setContacts] = useState([]);
 
-    useEffect(() => {
-        let c = localStorage.getItem('contacts');
+    // Phase 3 sandbox: per-app namespaced storage (syn.app.<id>.contacts)
+    const { storage } = useSandbox();
 
-        if (c) {
-            setContacts(JSON.parse(c));
-        }
+    useEffect(() => {
+        setContacts(storage.get('contacts', []));
     }, []);
 
     return (

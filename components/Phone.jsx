@@ -9,12 +9,16 @@ import { FaBackspace } from "react-icons/fa";
 import { useSwipeable } from 'react-swipeable';
 import { FaRegCircleUser } from "react-icons/fa6";
 import { AnimatePresence, motion } from "motion/react";
+import { useSandbox } from '@/lib/sandbox/AppSandbox';
 
 const Phone = () => {
     const [dialerOpen, setDialerOpen] = useState(false);
     const [tab, setTab] = useState(true);
     const [newTab, setNewTab] = useState(false);
     const [mob, setMob] = useState("");
+
+    // Phase 3 sandbox: per-app namespaced storage (syn.app.<id>.contacts)
+    const { storage } = useSandbox();
 
     const handler = useSwipeable({
         onSwipedLeft: () => {
@@ -31,9 +35,9 @@ const Phone = () => {
         newTab
             ? <NewContact
                 onSave={(contact) => {
-                    let contacts = JSON.parse(localStorage.getItem('contacts') || "[]");
+                    const contacts = storage.get('contacts', []);
                     contacts.push(contact);
-                    localStorage.setItem('contacts', JSON.stringify(contacts));
+                    storage.set('contacts', contacts);
                     setNewTab(false);
                 }}
             />

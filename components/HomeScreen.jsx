@@ -5,9 +5,10 @@ import { FaBars, FaRegCircleDot } from "react-icons/fa6";
 import usePhoneStore from '@/store/usePhone';
 import Image from 'next/image';
 import Quicksettings from './Quicksettings';
+import { AppSandbox } from '@/lib/sandbox/AppSandbox';
 
 const HomeScreen = () => {
-    const { qs, setQs, toggleQs, currentApp, openApp, backFromApp, toggleLock, currentTime, setCurrentTime, allApps } = usePhoneStore();
+    const { qs, setQs, toggleQs, currentApp, openApp, backFromApp, toggleLock, currentTime, setCurrentTime, allApps, canOpen, requestPerm } = usePhoneStore();
     const [speed, setSpeed] = useState("");
     const [anim, setAnim] = useState(0); // State to force re-render
     const [key, setKey] = useState(0);
@@ -39,8 +40,14 @@ const HomeScreen = () => {
     }, []);
 
     const handleAppClick = (app) => {
-        if (app.comp) {
+        if (!app.comp) return;
+
+        const perm = app.perm || 'normal';
+        if (canOpen(perm)) {
             openApp(app.id);
+        } else {
+            // Prompt renders at the page root; on grant it opens the app automatically.
+            requestPerm(perm, 'open-app', app.id);
         }
     };
 
@@ -65,7 +72,11 @@ const HomeScreen = () => {
                         key="app-screen"
                         className="h-[calc(100%-11.5%)] absolute z-1 w-full overflow-hidden"
                     >
-                        {allApps[currentApp - 1].comp}
+                        {/* Phase 3: every app runs inside the sandbox. A crash
+                            unmounts the app and returns here, not a white screen. */}
+                        <AppSandbox appId={allApps[currentApp - 1].id} onCrash={backFromApp}>
+                            {allApps[currentApp - 1].comp}
+                        </AppSandbox>
                     </motion.div>
                 )}
             </AnimatePresence>
